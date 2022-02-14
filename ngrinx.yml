@@ -1,0 +1,45 @@
+---
+- hosts: apps
+
+  tasks: 
+    - name: Install Nginx
+      apt:
+        name: nginx
+      become: yes
+
+    - name: Create static-site folder
+      file:
+        dest: /home/vagrant/static-site
+        mode: u+rwrx
+        state: directory
+  
+    - name: Copy configuration files
+      copy: 
+        src: "{{  item.src  }}"
+        dest: "{{  item.dest  }}"
+        owner: root
+        group: root
+        mode: u+rwrx
+      with_items:
+        - src: static_site.cfg
+          dest: /etc/nginx/sites-available/static_site.cfg
+        - src: ansible-logo.jpeg
+          dest: /home/vagrant/static-site/ansible-logo.jpeg
+        - src: index.html
+          dest: /home/vagrant/static-site/index.html
+      become: yes
+  
+    - name: Create symlink for the static site and the default site
+      file:
+        src: /etc/nginx/sites-available/static_site.cfg
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+        force: yes
+      become: yes
+      
+    - name: Ensure that service is running
+      systemd: 
+        name: nginx
+        state: reloaded
+        enabled: yes
+      become: yes

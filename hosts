@@ -1,0 +1,13 @@
+[apps]
+192.168.60.4 ansible_ssh_private_key_file=~/.ssh/id_rsa_app1
+192.168.60.5 ansible_ssh_private_key_file=~/.ssh/id_rsa_app2
+
+[db]
+192.168.60.6 ansible_ssh_private_key_file=~/.ssh/id_rsa_db1
+
+[multi:children]
+apps
+db
+
+[multi:vars]
+ansible_ssh_user=vagrant

@@ -1,0 +1,71 @@
+---
+- hosts: apps
+
+  tasks: 
+    - name: Remove service
+      systemd: 
+        name: nginx
+        state: stopped
+        enabled: no
+        daemon_reload: yes
+      become: yes
+      ignore_errors: yes
+
+    - name: Remove Nginx
+      apt:
+        name: 
+          - nginx
+          - nginx-full
+          - nginx-common
+        state: absent
+        purge: yes
+      become: yes
+    
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+      become: yes
+
+    - name: Remove useless packages from the cache
+      apt:
+        autoclean: yes
+      become: yes
+      
+    - name: Remove static-site folder and its contents
+      file:
+        dest: /home/vagrant/static-site
+        mode: 777
+        state: absent
+      become: yes
+
+    - name: Remove nginx folder and its contents
+      file:
+        dest: /etc/nginx/
+        state: absent
+      become: yes
+      ignore_errors: yes
+
+    - name: Remove service
+      file:
+        dest: /lib/systemd/system/nginx.service
+        state: absent
+      become: yes
+      ignore_errors: yes
+      
+    - name: Remove init
+      file:
+        dest: /etc/init.d/nginx
+        state: absent
+      become: yes
+      ignore_errors: yes
+
+    - name: Remove symlink for the static site and the default site
+      file:
+        dest: /etc/nginx/sites-enabled/default
+        state: absent
+      become: yes
+
+    - name: system reload
+      systemd: 
+        daemon_reload: yes
+      become: yes
