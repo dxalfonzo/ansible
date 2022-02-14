@@ -28,6 +28,8 @@
         - src: index.html
           dest: /home/vagrant/static-site/index.html
       become: yes
+      notify:
+        - Restart nginx
   
     - name: Create symlink for the static site and the default site
       file:
@@ -36,8 +38,9 @@
         state: link
         force: yes
       become: yes
-      
-    - name: Ensure that service is running
+  
+  handlers:
+    - name: Restart nginx
       systemd: 
         name: nginx
         state: reloaded
